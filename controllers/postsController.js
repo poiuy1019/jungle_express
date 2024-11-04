@@ -1,12 +1,33 @@
 const Post = require('../schemas/post');
 const Comment = require('../schemas/comment');
 
+const showEverything = async (req, res) => {
+    try {
+        const posts = await Post.find()
+            .sort({ createdAt: -1 })
+            .populate({
+                path: 'comments',         
+                model: 'Comment',         
+                match: { post_id: { $exists: true } }, 
+                options: { sort: { createdAt: -1 } }
+            });
+        if (!posts || posts.length === 0) return res.status(204).json({ message: 'No posts available.' });
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching posts' });
+    }
+};
+
 const getAllPosts = async (req, res) => {
-    const posts = await Post.find()
-        .sort({ createdAt: -1 });
-    if (!posts) return res.status(204).json({ 'message': '게시물이 없습니다.' });
-    res.json(posts);
-}
+    try {
+        const posts = await Post.find()
+            .sort({ createdAt: -1 })
+        if (!posts || posts.length === 0) return res.status(204).json({ 'message': '게시물이 없습니다.' });
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ 'message': 'Error fetching posts' });
+    }
+};
 
 const createNewPost = async (req, res) => {
     if (!req?.body?.title) { return res.status(400).json({ 'message': '게시물 제목을 입력하세요.' }); }
@@ -21,7 +42,7 @@ const createNewPost = async (req, res) => {
     } catch (err) {
         console.error(err);
     }
-}
+};
 
 const updatePost = async (req, res) => {
     const { id, title, content } = req.body;
@@ -82,6 +103,7 @@ const getPost = async (req, res) => {
 }
 
 module.exports = {
+    showEverything,
     getAllPosts,
     createNewPost,
     updatePost,

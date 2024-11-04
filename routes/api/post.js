@@ -6,6 +6,7 @@ const verifyJWT = require('../../config/verifyJWT');
 router.route('/all')
     .get(postsController.getAllPosts);
 router.route('/')
+    .get(postsController.showEverything)
     .post(verifyJWT, postsController.createNewPost)
     .put(verifyJWT, postsController.updatePost)
     .delete(verifyJWT, postsController.deletePost);
